@@ -1,71 +1,73 @@
 import streamlit as st
 
-# සයිට් එකේ මූලික සැකසුම්
-st.set_page_config(page_title="Global Auto Hub", layout="wide")
+st.set_page_config(page_title="Auto Price Converter", layout="wide")
 
-# භාෂාව තෝරන කොටස (Language Switcher)
+# භාෂාව තෝරාගැනීම
 lang = st.sidebar.selectbox("භාෂාව තෝරන්න / Select Language", ["සිංහල", "English"])
 
-# පෙන්විය යුතු අකුරු භාෂාව අනුව වෙනස් කිරීම
-if lang == "සිංහල":
-    title = "🌍 ලෝක වාහන තොරතුරු මධ්‍යස්ථානය"
-    sub_title = "ඕනෑම වාහනයක නමක් ටයිප් කරන්න (උදා: Toyota, Tesla, Honda Civic)"
-    search_label = "වාහනයේ නම ඇතුළත් කරන්න:"
-    not_found = "කණගාටුයි, එම වාහනයේ විස්තර සොයාගත නොහැක."
-    showroom_title = "ප්‍රදර්ශනාගාරය"
-else:
-    title = "🌍 Global Auto Information Hub"
-    sub_title = "Type any car name or brand (e.g., Toyota, Tesla, Honda Civic)"
-    search_label = "Enter car or brand name:"
-    not_found = "Sorry, details for that vehicle were not found."
-    showroom_title = "Showroom"
+# අද දවසේ ඩොලර් එකේ රුපියල් අගය (මෙහි ඔයාට කැමති අගයක් දිය හැක)
+usd_to_lkr = 300.0 
 
-st.title(title)
-st.write(sub_title)
-
-# වාහන දත්ත (ප්‍රධාන සමාගම් කිහිපයක්)
-car_data = {
-    "toyota": {"si": "ජපානයේ අංක 1 වාහන නිෂ්පාදකයා.", "en": "Japan's No. 1 car manufacturer."},
-    "honda": {"si": "විශ්වාසවන්ත එන්ජින් සඳහා ප්‍රසිද්ධයි.", "en": "Famous for reliable engines."},
-    "bmw": {"si": "ජර්මානු සුඛෝපභෝගී වාහන.", "en": "German luxury vehicle manufacturer."},
-    "tesla": {"si": "විද්‍යුත් වාහන (EV) ලෝකයේ පෙරළිකාරයා.", "en": "Pioneer in electric vehicles (EV)."},
-    "mercedes": {"si": "ලොව සුඛෝපභෝගී වාහන වල සංකේතය.", "en": "The symbol of luxury vehicles worldwide."},
-    "nissan": {"si": "ජපන් තාක්ෂණය සහ කල්පැවැත්ම.", "en": "Japanese technology and durability."},
-    "lamborghini": {"si": "ඉතාලි සුපිරි ක්‍රීඩා වාහන.", "en": "Italian super sports cars."},
-    "ferrari": {"si": "වේගය සහ රතු පැහැයට උරුමකම් කියන ඉතාලි සමාගම.", "en": "Italian company famous for speed and red color."}
+# වාහන සහ ඒවායේ දළ ඩොලර් මිල ගණන් (Global Prices)
+# මම මෙතනට ලෝකයේ ජනප්‍රිය වාහන කිහිපයක් දැම්මා
+car_db = {
+    "toyota corolla": 22000,
+    "toyota camry": 26000,
+    "honda civic": 25000,
+    "tesla model 3": 39000,
+    "bmw i8": 147000,
+    "nissan gtr": 115000,
+    "mercedes benz s-class": 114000,
+    "suzuki alto": 8000, # Global equivalent
+    "toyota prado": 60000,
+    "land cruiser v8": 85000
 }
 
-# සර්ච් බාර් එක
-search_query = st.text_input(search_label).lower().strip()
+# භාෂා සැකසුම්
+if lang == "සිංහල":
+    t_title = "🚗 රුපියල් මිල ගණක යන්ත්‍රය (Live USD to LKR)"
+    t_desc = f"අද ඩොලර් එකක අගය: රු. {usd_to_lkr}"
+    t_label = "වාහනයේ නම ඇතුළත් කරන්න (උදා: tesla model 3):"
+    t_price_usd = "ලෝක වෙළඳපොළ මිල (USD):"
+    t_price_lkr = "ශ්‍රී ලංකා රුපියල් වලින් (LKR):"
+else:
+    t_title = "🚗 Currency Converter (USD to LKR)"
+    t_desc = f"Today's Exchange Rate: 1 USD = {usd_to_lkr} LKR"
+    t_label = "Enter car name (e.g., tesla model 3):"
+    t_price_usd = "Global Market Price (USD):"
+    t_price_lkr = "Price in Sri Lankan Rupees (LKR):"
+
+st.title(t_title)
+st.write(t_desc)
+
+search_query = st.text_input(t_label).lower().strip()
 
 if search_query:
     st.markdown("---")
-    found = False
     
-    # නම ආසන්න වශයෙන් සර්ච් කිරීම
-    for brand, info in car_data.items():
-        if search_query in brand or brand in search_query:
-            st.header(f"🚘 {brand.upper()}")
-            # තෝරාගත් භාෂාව අනුව විස්තරය පෙන්වීම
-            st.info(info["si"] if lang == "සිංහල" else info["en"])
+    # පින්තූරය ගේන කොටස
+    img_url = f"https://loremflickr.com/800/500/{search_query.replace(' ', ',')},car"
+    st.image(img_url, caption=f"Visual of {search_query}")
+
+    # මිල ගණනය කිරීම
+    found = False
+    for car_name, usd_price in car_db.items():
+        if search_query in car_name:
+            lkr_price = usd_price * usd_to_lkr
             
-            # අන්තර්ජාලයෙන් පින්තූරය ගේන ලින්ක් එක
-            image_url = f"https://source.unsplash.com/featured/?{brand},car"
-            st.image(image_url, width=800)
+            # ලක්ෂ ගණනින් පෙන්වීම (Millions/Lakhs)
+            lakhs = lkr_price / 100000
+            
+            st.subheader(f"💰 {t_price_usd} ${usd_price:,}")
+            st.header(f"➡️ {t_price_lkr} රු. {lkr_price:,.2f}")
+            st.success(f"දළ වශයෙන් රුපියල් ලක්ෂ: {lakhs:,.1f}")
+            
             found = True
             break
-    
-    # ලැයිස්තුවේ නැතිනම් පොදු පින්තූරයක් පෙන්වීම
+            
     if not found:
-        st.header(f"🔍 {search_query.upper()}")
-        image_url = f"https://source.unsplash.com/featured/?{search_query},vehicle"
-        st.image(image_url, caption=search_query, width=800)
+        st.warning("මෙම වාහනයේ මිල දත්ත අප සතුව නැත. පින්තූරය පමණක් පහතින් පෙන්වයි.")
+        st.info("වැඩිදුර මිල ගණන් සඳහා Google Search කරන්න.")
 
 st.markdown("---")
-st.subheader(showroom_title)
-# පොදු පින්තූර කිහිපයක් පෙන්වීම
-cols = st.columns(4)
-popular_brands = ["Toyota", "BMW", "Tesla", "Nissan"]
-for i, b in enumerate(popular_brands):
-    with cols[i]:
-        st.image(f"https://source.unsplash.com/featured/?{b},car", caption=b)
+st.write("⚠️ සටහන: මෙහි පෙන්වන්නේ බදු රහිත (Tax-free) ලෝක වෙළඳපොළ මිල රුපියල් වලට හැරවූ අගයයි. ලංකාවේ ආනයනික බදු නිසා මෙම මිල 200% - 300% කින් වැඩි විය හැක.")
