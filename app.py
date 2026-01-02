@@ -1,12 +1,11 @@
 import streamlit as st
 
-# වෙබ් පිටුවේ සැකසුම්
-st.set_page_config(page_title="Sri Lanka Vehicle Hub", layout="wide")
+st.set_page_config(page_title="Mega Motors SL", layout="wide")
 
 st.title("🚗 ශ්‍රී ලංකා වාහන සහ බයික් තොරතුරු")
-st.write("ඕනෑම වාහනයක හෝ බයික් එකක නම ටයිප් කර තොරතුරු බලන්න.")
+st.write("පහත ඕනෑම වාහනයක නම ටයිප් කර තොරතුරු සහ පින්තූර බලන්න.")
 
-# වාහන සහ බයික් දත්ත ගබඩාව (සජීවී පින්තූර ලින්ක් සමඟ)
+# වාහන සහ බයික් දත්ත ගබඩාව (පින්තූර ලින්ක් අලුත් කර ඇත)
 data_store = {
     # --- වාහන (Cars) ---
     "land cruiser": {"name": "Toyota Land Cruiser V8", "price": "ලක්ෂ 650 - 850", "url": "https://img.sm360.ca/ir/w1024h768c/images/inventory/st-eustache-toyota/toyota/land-cruiser/2024/25292358/i25292358-1.jpg"},
@@ -29,24 +28,26 @@ data_store = {
 }
 
 # සර්ච් බාර් එක
-search_query = st.text_input("වාහනයේ නම ටයිප් කරන්න (උදා: gtr, alto, hornet):").lower().strip()
+search_query = st.text_input("වාහනයේ නම ටයිප් කරන්න (උදා: gtr, alto, hornet, defender):").lower().strip()
 
 if search_query in data_store:
     data = data_store[search_query]
     st.divider()
-    col1, col2 = st.columns([1.5, 1])
+    col1, col2 = st.columns([2, 1])
     with col1:
         st.image(data['url'], use_container_width=True, caption=data['name'])
     with col2:
         st.subheader(f"✅ {data['name']}")
-        st.success(f"💰 ඇස්තමේන්තුගත මිල: රු. {data['price']}")
+        st.success(f"💰 මිල: රු. {data['price']}")
+        st.write("මෙය ආසන්න වෙළඳපල මිල වේ.")
 elif search_query:
-    st.warning("කණගාටුයි, එම නම අපගේ ලැයිස්තුවේ නැත.")
+    st.error("කණගාටුයි, එම නම අපේ ලැයිස්තුවේ නැහැ. (GTR, Axio, Hornet වැනි නම් උත්සාහ කරන්න)")
 
-# පහළින් Gallery එකක් පෙන්වමු
+# ප්‍රදර්ශනාගාරය
 st.divider()
 st.subheader("ප්‍රදර්ශනාගාරය (Showroom)")
-cols = st.columns(4)
-for i, (key, item) in enumerate(list(data_store.items())[:8]): # මුල් අයිතම 8 පෙන්වයි
-    with cols[i % 4]:
+cols = st.columns(3)
+# මුල් වාහන 6 පෙන්වමු
+for i, (key, item) in enumerate(list(data_store.items())[:6]):
+    with cols[i % 3]:
         st.image(item['url'], caption=item['name'], use_container_width=True)
