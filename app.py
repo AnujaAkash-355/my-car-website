@@ -10,7 +10,7 @@ lang = st.sidebar.radio("Language / භාෂාව", ["සිංහල", "Engli
 usd_rate = 300.0 
 base_path = os.path.dirname(__file__)
 
-# වාහන දත්ත ගබඩාව (ඔයාගේ GitHub එකේ තියෙන පින්තූර වලට අනුව)
+# වාහන දත්ත ගබඩාව (භාෂා දෙකෙන්ම සහ නිවැරදි විස්තර)
 car_db = {
     "vitz": {
         "name_en": "Toyota Vitz 2024", "name_si": "ටොයෝටා විට්ස් 2024",
@@ -35,7 +35,7 @@ car_db = {
     }
 }
 
-# භාෂාව අනුව වචන සැකසීම (Syntax Errors මඟහරවා ඇත)
+# භාෂාව අනුව සියලුම වචන සැකසීම (සිංහල/English 100% වෙන් කර ඇත)
 if lang == "සිංහල":
     title = "🚗 වාහන තොරතුරු මධ්‍යස්ථානය"
     label = "වාහනයේ නම ඇතුළත් කරන්න (vitz, prado, axio):"
@@ -43,8 +43,8 @@ if lang == "සිංහල":
     price_h = "💰 වෙළඳපොළ මිල තොරතුරු"
     cc_l, fuel_l, hp_l = "එන්ජින් ධාරිතාව", "ඉන්ධන වර්ගය", "අශ්ව බලය"
     lkr_text, lakhs_text = "මුළු මිල (රුපියල්)", "ලක්ෂ"
-    install_btn = "මෙම ඇප් එක ඔබගේ දුරකථනයට ස්ථාපනය කිරීමට මෙතැන ක්ලික් කරන්න"
-    phone_msg = "**ස්ථාපනය කිරීමට:** බ්‍රවුසරයේ ⋮ ඔබා 'Add to Home screen' තෝරන්න."
+    install_btn = "මෙම ඇප් එක ඔබගේ දුරකථනයට ස්ථාපනය (Install) කර ගැනීමට මෙතැන ක්ලික් කරන්න"
+    install_msg = "ස්ථාපනය කිරීමට: බ්‍රවුසරයේ ⋮ ලකුණ ඔබා 'Add to Home screen' යන්න තෝරන්න."
 else:
     title = "🚗 Vehicle Information Center"
     label = "Type vehicle name (vitz, prado, axio):"
@@ -53,13 +53,14 @@ else:
     cc_l, fuel_l, hp_l = "Engine Capacity", "Fuel Type", "Horsepower"
     lkr_text, lakhs_text = "Total Price (LKR)", "Lakhs"
     install_btn = "Click here to install this app on your phone"
-    phone_msg = "**To Install:** Tap ⋮ in your browser and select 'Add to Home screen'."
+    install_msg = "To Install: Tap ⋮ in your browser and select 'Add to Home screen'."
 
 st.title(title)
 
-# ස්ථාපනය කරන Button එක
+# --- අලුතින් එකතු කළ Install Button එක ---
 if st.button(install_btn):
-    st.info(phone_msg)
+    st.info(install_msg)
+# ----------------------------------------
 
 query = st.text_input(label).lower().strip()
 
@@ -68,12 +69,12 @@ if query:
     if query in car_db:
         car = car_db[query]
         
-        # 1. පින්තූරය පෙන්වීම
+        # 1. පින්තූරය (ඔයාගේ GitHub එකෙන්)
         img_path = os.path.join(base_path, car["img"])
         if os.path.exists(img_path):
-            st.image(img_path, use_column_width=True)
+            st.image(img_path, caption=car["name_si"] if lang == "සිංහල" else car["name_en"], use_column_width=True)
 
-        # 2. මිල පෙන්වීම
+        # 2. මිල පෙන්වීම (පැහැදිලිව)
         lkr_val = car["price"] * usd_rate
         lakhs = lkr_val / 100000
         st.subheader(price_h)
@@ -81,3 +82,19 @@ if query:
         <div style="background-color:#111; padding:25px; border-radius:15px; border: 2px solid #ff4b4b; text-align:center;">
             <h1 style="color:white; margin:0;">{lkr_text}: {lkr_val:,.0f}</h1>
             <h2 style="color:#ff4b4b; margin:0;">({lakhs:,.1f} {lakhs_text})</h2>
+            <p style="color:#888;">USD: ${car['price']:,}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 3. තාක්ෂණික විස්තර (වචන කැපෙන්නේ නැති වෙන්න st.success පාවිච්චි කර ඇත)
+        st.subheader(specs_h)
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown(f"**{cc_l}**")
+            st.success(car["cc_si"] if lang == "සිංහල" else car["cc_en"])
+        with c2:
+            st.markdown(f"**{fuel_l}**")
+            st.success(car["fuel_si"] if lang == "සිංහල" else car["fuel_si"])
+        with c3:
+            st.markdown(f"**{hp_l}**")
+            st.success(car["hp_si"] if lang == "සිංහල" else car["hp_en"])
