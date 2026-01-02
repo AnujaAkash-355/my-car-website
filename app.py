@@ -1,71 +1,74 @@
 import streamlit as st
 
-# ඇප් එකේ මූලික සැකසුම්
+# ඇප් එකේ නම වෙනස් කිරීම
 st.set_page_config(page_title="වාහන වල මිල ගණන්", layout="wide")
 
-# භාෂාව තෝරාගැනීම
+# භාෂාව
 lang = st.sidebar.selectbox("භාෂාව / Language", ["සිංහල", "English"])
-usd_to_lkr = 300.0  # වර්තමාන ඩොලර් අගය
+usd_rate = 300.0 
 
-# වචන සැකසුම් සහ මාතෘකා
+# වාහන දත්ත ගබඩාව (Engine & Tech Specs ඇතුළුව)
+car_specs = {
+    "alto": {"eng": "800cc", "fuel": "Petrol", "hp": "47 hp", "price_usd": 8500},
+    "vitz": {"eng": "1000cc / 1300cc", "fuel": "Petrol/Hybrid", "hp": "68 hp", "price_usd": 17500},
+    "prado": {"eng": "2700cc / 2800cc", "fuel": "Petrol/Diesel", "hp": "160-200 hp", "price_usd": 65000},
+    "land cruiser": {"eng": "3300cc / 3500cc", "fuel": "Diesel/Petrol", "hp": "300+ hp", "price_usd": 95000},
+    "axio": {"eng": "1500cc", "fuel": "Hybrid/Petrol", "hp": "110 hp", "price_usd": 22000},
+    "civic": {"eng": "1500cc Turbo", "fuel": "Petrol", "hp": "180 hp", "price_usd": 28000},
+    "tesla model 3": {"eng": "Electric Motor", "fuel": "Electric", "hp": "283 hp", "price_usd": 42000},
+    "defender": {"eng": "2000cc / 3000cc", "fuel": "Diesel/Petrol", "hp": "250-400 hp", "price_usd": 85000}
+}
+
 if lang == "සිංහල":
-    t_main_title = "🔍 වාහන වල මිල ගණන්"
-    t_label = "වාහනයේ නම ඇතුළත් කරන්න (උදා: Toyota Prado, Suzuki Alto):"
-    t_price_head = "💰 වෙළඳපොළ මිල තොරතුරු (මෙතනම බලන්න):"
-    t_usd = "ලෝක වෙළඳපොළ මිල (USD):"
-    t_lkr = "රුපියල් අගය (බදු රහිත):"
-    t_lakhs = "ලක්ෂ ගණනින්:"
+    t_title = "🔍 වාහන වල මිල ගණන් සහ විස්තර"
+    t_input = "වාහනයේ නම ඇතුළත් කරන්න:"
+    t_details = "⚙️ තාක්ෂණික විස්තර (Technical Specs)"
+    t_price = "💰 වත්මන් වෙළඳපොළ මිල"
 else:
-    t_main_title = "🔍 Vehicle Prices & Details"
-    t_label = "Enter car name (e.g., Toyota Prado, Suzuki Alto):"
-    t_price_head = "💰 Market Price Information (Live):"
-    t_usd = "Global Market Price (USD):"
-    t_lkr = "Price in LKR (Tax-free):"
-    t_lakhs = "In Lakhs:"
+    t_title = "🔍 Vehicle Prices & Specifications"
+    t_input = "Enter car name:"
+    t_details = "⚙️ Technical Specifications"
+    t_price = "💰 Current Market Price"
 
-# ප්‍රධාන මාතෘකාව
-st.title(t_main_title)
-
-# සර්ච් බාර් එක
-query = st.text_input(t_label).strip()
+st.title(t_title)
+query = st.text_input(t_input).lower().strip()
 
 if query:
     st.markdown("---")
     
-    # 1. පින්තූරය පෙන්වීම (පූසෝ එන්නේ නැති වෙන්න car/vehicle කියන එක බලෙන්ම එකතු කර ඇත)
-    # අන්තර්ජාලයෙන් වඩාත් ගැලපෙන රූපය මෙතනට ගේනවා
-    img_url = f"https://loremflickr.com/1200/600/{query.replace(' ', ',')},car,automobile,vehicle/all"
-    st.image(img_url, caption=f"Visual for: {query}", use_column_width=True)
-    
-    # 2. මිල ගණනය කිරීමේ Logic එක (ඩොලර් වලින් රුපියල් වලට)
-    base_usd = 20000 
-    low_query = query.lower()
-    
-    # වාහන වර්ගය අනුව ඩොලර් මිල තීරණය කිරීම
-    if "alto" in low_query: base_usd = 8500
-    elif "vitz" in low_query: base_usd = 17500
-    elif "prado" in low_query: base_usd = 65000
-    elif "land cruiser" in low_query or "v8" in low_query: base_usd = 95000
-    elif "tesla model 3" in low_query: base_usd = 40000
-    elif "civic" in low_query: base_usd = 26000
-    elif "defender" in low_query: base_usd = 85000
-    elif "axio" in low_query: base_usd = 22000
+    # පින්තූරය පෙන්වීම (පූසෝ එන්නේ නැති වෙන්න car කියන එක අගට දමා ඇත)
+    img_url = f"https://loremflickr.com/1000/500/{query.replace(' ', ',')},car/all"
+    st.image(img_url, use_column_width=True)
 
-    lkr_price = base_usd * usd_to_lkr
-    lakhs_val = lkr_price / 100000
-
-    # මිල ගණන් පෙන්වන පුවරුව (Metrics)
-    st.subheader(t_price_head)
-    col1, col2, col3 = st.columns(3)
+    # දත්ත සෙවීම
+    base_usd = 20000
+    spec_data = {"eng": "Not Available", "fuel": "Not Available", "hp": "Not Available"}
     
-    with col1:
-        st.metric(t_usd, f"${base_usd:,}")
-    with col2:
-        st.metric(t_lkr, f"Rs. {lkr_price:,.0f}")
-    with col3:
-        st.metric(t_lakhs, f"{lakhs_val:,.1f} Lakhs")
+    # දත්ත ගබඩාවෙන් තොරතුරු ලබා ගැනීම
+    for car in car_specs:
+        if car in query:
+            base_usd = car_specs[car]["price_usd"]
+            spec_data = car_specs[car]
+            break
 
-    st.warning("⚠️ සටහන: මෙම මිල ගණන් ලෝක වෙළඳපොළේ පවතින දළ අගයන් වේ. ලංකාවේ පවතින ආනයන බදු මත මෙම මිල විශාල ලෙස වෙනස් විය හැක.")
+    lkr_price = base_usd * usd_rate
+    
+    # මිල ගණන් විශාලව පෙන්වීම (මුළු ඉලක්කමම පෙනෙන පරිදි)
+    st.subheader(t_price)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown(f"### USD: **${base_usd:,}**")
+    with c2:
+        st.markdown(f"### LKR: **රු. {lkr_price:,.2f}**")
+    
+    st.success(f"දළ වශයෙන් රුපියල් ලක්ෂ: **{(lkr_price/100000):,.1f} Lakhs**")
+
+    # තාක්ෂණික විස්තර පෙන්වීම
+    st.subheader(t_details)
+    st.table({
+        "විස්තරය (Feature)": ["එන්ජින් ධාරිතාව (Engine)", "ඉන්ධන වර්ගය (Fuel)", "අශ්ව බලය (Horsepower)"],
+        "තොරතුරු (Value)": [spec_data["eng"], spec_data["fuel"], spec_data["hp"]]
+    })
 
 st.markdown("---")
-st.write("පිටුවෙන් පිටතට නොගොස් සියලුම දත්ත දැන් මෙතනින්ම ලබාගත හැක.")
+st.warning("මෙම තොරතුරු අන්තර්ජාලය ඇසුරින් ලබාගත් දළ දත්ත වේ.")
