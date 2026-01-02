@@ -1,47 +1,71 @@
 import streamlit as st
-import os
 
-st.set_page_config(page_title="Mega Motors SL", layout="wide")
+# සයිට් එකේ මූලික සැකසුම්
+st.set_page_config(page_title="Global Auto Hub", layout="wide")
 
-st.title("🚗 ශ්‍රී ලංකා වාහන සහ බයික් තොරතුරු")
-st.write("පහත ඕනෑම වාහනයක නම ටයිප් කර තොරතුරු බලන්න.")
+# භාෂාව තෝරන කොටස (Language Switcher)
+lang = st.sidebar.selectbox("භාෂාව තෝරන්න / Select Language", ["සිංහල", "English"])
 
-base_path = os.path.dirname(__file__)
+# පෙන්විය යුතු අකුරු භාෂාව අනුව වෙනස් කිරීම
+if lang == "සිංහල":
+    title = "🌍 ලෝක වාහන තොරතුරු මධ්‍යස්ථානය"
+    sub_title = "ඕනෑම වාහනයක නමක් ටයිප් කරන්න (උදා: Toyota, Tesla, Honda Civic)"
+    search_label = "වාහනයේ නම ඇතුළත් කරන්න:"
+    not_found = "කණගාටුයි, එම වාහනයේ විස්තර සොයාගත නොහැක."
+    showroom_title = "ප්‍රදර්ශනාගාරය"
+else:
+    title = "🌍 Global Auto Information Hub"
+    sub_title = "Type any car name or brand (e.g., Toyota, Tesla, Honda Civic)"
+    search_label = "Enter car or brand name:"
+    not_found = "Sorry, details for that vehicle were not found."
+    showroom_title = "Showroom"
 
-data_store = {
-    "vitz": {"name": "Toyota Vitz", "price": "රු. ලක්ෂ 35 - 65", "img": "vitz.jpg"},
-    "prado": {"name": "Toyota Prado", "price": "රු. ලක්ෂ 120 - 450", "img": "prado.jpg"},
-    "montero": {"name": "Mitsubishi Montero Sport", "price": "රු. ලක්ෂ 250 - 450", "img": "montero.jpg"},
-    "landcruiser": {"name": "Toyota Land Cruiser", "price": "රු. ලක්ෂ 650 - 850", "img": "landcruiser.jpg"},
-    "i8": {"name": "BMW i8 Hybrid", "price": "රු. ලක්ෂ 550 - 650", "img": "i8.jpg"},
-    "gtr": {"name": "Nissan GTR R35", "price": "රු. ලක්ෂ 300 - 550", "img": "gtr.jpg"},
-    "defender": {"name": "Land Rover Defender", "price": "රු. ලක්ෂ 500 - 900", "img": "defender.jpg"},
-    "benz": {"name": "Mercedes-Benz S-Class", "price": "රු. ලක්ෂ 250 - 800", "img": "benz.jpg"},
-    "axio": {"name": "Toyota Axio", "price": "රු. ලක්ෂ 75 - 95", "img": "axio.jpg"},
-    "allion": {"name": "Toyota Allion", "price": "රු. ලක්ෂ 65 - 85", "img": "allion.jpg"}
+st.title(title)
+st.write(sub_title)
+
+# වාහන දත්ත (ප්‍රධාන සමාගම් කිහිපයක්)
+car_data = {
+    "toyota": {"si": "ජපානයේ අංක 1 වාහන නිෂ්පාදකයා.", "en": "Japan's No. 1 car manufacturer."},
+    "honda": {"si": "විශ්වාසවන්ත එන්ජින් සඳහා ප්‍රසිද්ධයි.", "en": "Famous for reliable engines."},
+    "bmw": {"si": "ජර්මානු සුඛෝපභෝගී වාහන.", "en": "German luxury vehicle manufacturer."},
+    "tesla": {"si": "විද්‍යුත් වාහන (EV) ලෝකයේ පෙරළිකාරයා.", "en": "Pioneer in electric vehicles (EV)."},
+    "mercedes": {"si": "ලොව සුඛෝපභෝගී වාහන වල සංකේතය.", "en": "The symbol of luxury vehicles worldwide."},
+    "nissan": {"si": "ජපන් තාක්ෂණය සහ කල්පැවැත්ම.", "en": "Japanese technology and durability."},
+    "lamborghini": {"si": "ඉතාලි සුපිරි ක්‍රීඩා වාහන.", "en": "Italian super sports cars."},
+    "ferrari": {"si": "වේගය සහ රතු පැහැයට උරුමකම් කියන ඉතාලි සමාගම.", "en": "Italian company famous for speed and red color."}
 }
 
-search_query = st.text_input("වාහනයේ නම ටයිප් කරන්න:").lower().strip()
+# සර්ච් බාර් එක
+search_query = st.text_input(search_label).lower().strip()
 
 if search_query:
-    if search_query in data_store:
-        item = data_store[search_query]
-        st.subheader(item["name"])
-        st.write(f"**මිල:** {item['price']}")
-        img_path = os.path.join(base_path, item["img"])
-        if os.path.exists(img_path):
-            # මෙතන width=600 දැම්මම පින්තූරය ගොඩක් ඇදෙන්නේ නැතුව පැහැදිලිව පේනවා
-            st.image(img_path, width=600)
-    else:
-        st.warning("තොරතුරු හමුවුනේ නැත.")
+    st.markdown("---")
+    found = False
+    
+    # නම ආසන්න වශයෙන් සර්ච් කිරීම
+    for brand, info in car_data.items():
+        if search_query in brand or brand in search_query:
+            st.header(f"🚘 {brand.upper()}")
+            # තෝරාගත් භාෂාව අනුව විස්තරය පෙන්වීම
+            st.info(info["si"] if lang == "සිංහල" else info["en"])
+            
+            # අන්තර්ජාලයෙන් පින්තූරය ගේන ලින්ක් එක
+            image_url = f"https://source.unsplash.com/featured/?{brand},car"
+            st.image(image_url, width=800)
+            found = True
+            break
+    
+    # ලැයිස්තුවේ නැතිනම් පොදු පින්තූරයක් පෙන්වීම
+    if not found:
+        st.header(f"🔍 {search_query.upper()}")
+        image_url = f"https://source.unsplash.com/featured/?{search_query},vehicle"
+        st.image(image_url, caption=search_query, width=800)
 
 st.markdown("---")
-st.subheader("ප්‍රදර්ශනාගාරය (Showroom)")
-cols = st.columns(3)
-items = list(data_store.values())
-for i in range(min(6, len(items))):
-    with cols[i % 3]:
-        img_path = os.path.join(base_path, items[i]["img"])
-        if os.path.exists(img_path):
-            # Showroom එකේ පින්තූර කුඩාවට පෙන්වීම
-            st.image(img_path, caption=items[i]["name"], width=300)
+st.subheader(showroom_title)
+# පොදු පින්තූර කිහිපයක් පෙන්වීම
+cols = st.columns(4)
+popular_brands = ["Toyota", "BMW", "Tesla", "Nissan"]
+for i, b in enumerate(popular_brands):
+    with cols[i]:
+        st.image(f"https://source.unsplash.com/featured/?{b},car", caption=b)
