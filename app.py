@@ -5,7 +5,7 @@ st.set_page_config(page_title="Mega Motors SL", layout="wide")
 st.title("🚗 ශ්‍රී ලංකා වාහන සහ බයික් තොරතුරු")
 st.write("පහත ඕනෑම වාහනයක නම ටයිප් කර තොරතුරු සහ පින්තූර බලන්න.")
 
-# ඔයා අප්ලෝඩ් කරපු පින්තූර නම් වලට ගැලපෙන දත්ත
+# ඔයා අප්ලෝඩ් කළ පින්තූර වල නම් මෙතන හරියටම තියෙනවා
 data_store = {
     "vitz": {"name": "Toyota Vitz", "price": "රු. ලක්ෂ 35 - 65", "url": "vitz.jpg"},
     "prado": {"name": "Toyota Prado", "price": "රු. ලක්ෂ 120 - 450", "url": "prado.jpg"},
@@ -19,15 +19,15 @@ data_store = {
     "allion": {"name": "Toyota Allion", "price": "රු. ලක්ෂ 65 - 85", "url": "allion.jpg"}
 }
 
-search_query = st.text_input("වාහනයේ නම ටයිප් කරන්න (උදා: gtr, prado, vitz):").lower()
+search_query = st.text_input("වාහනයේ නම ටයිප් කරන්න (උදා: gtr, prado, vitz):").lower().strip()
 
 if search_query:
     if search_query in data_store:
         v = data_store[search_query]
         st.subheader(v["name"])
         st.write(f"**මිල:** {v['price']}")
-        # පරණ use_container_width එක වෙනුවට නිවැරදි එක මෙතන තියෙන්නේ
-        st.image(v["url"], width=700)
+        # කළු පාට message එක එන්නේ මේ පල්ලෙහා පේළිය නිසයි. මම ඒක දැන් නිවැරදි කළා.
+        st.image(v["url"], use_column_width=True)
     else:
         st.warning("කණගාටුයි, එම වාහනයේ තොරතුරු අප සතුව නැත.")
 
@@ -36,4 +36,4 @@ st.subheader("ප්‍රදර්ශනාගාරය (Showroom)")
 cols = st.columns(3)
 for i, (key, val) in enumerate(list(data_store.items())[:6]):
     with cols[i % 3]:
-        st.image(val["url"], caption=val["name"], width=300)
+        st.image(val["url"], caption=val["name"], use_column_width=True)
