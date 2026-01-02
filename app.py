@@ -1,21 +1,83 @@
-# භාෂාව අනුව Button එකේ වචන වෙනස් කිරීම
-if lang == "සිංහල":
-    install_btn = "මෙම ඇප් එක ඔබගේ දුරකථනයට ස්ථාපනය (Install) කර ගැනීමට මෙතැන ක්ලික් කරන්න"
-    install_msg = """
-    **ස්ථාපනය කරන ආකාරය:**
-    1. බ්‍රවුසරයේ ඉහළ දකුණු කෙළවරේ ඇති තිත් තුන (⋮) ඔබන්න.
-    2. 'Add to Home screen' හෝ 'Install app' යන්න තෝරන්න.
-    3. 'Add' බොත්තම එබූ පසු මෙය ඔබගේ ඇප් අතරට එක් වේ.
-    """
-else:
-    install_btn = "Click here to install this app on your phone"
-    install_msg = """
-    **How to Install:**
-    1. Tap the three dots (⋮) on the top right of your browser.
-    2. Select 'Add to Home screen' or 'Install app'.
-    3. Click 'Add' to see the app on your home screen.
-    """
+import streamlit as st
+import os
 
-# Button එක පෙන්වීම
+# ඇප් එකේ මූලික සැකසුම්
+st.set_page_config(page_title="වාහන වල මිල ගණන්", layout="wide")
+
+# භාෂාව තෝරාගැනීම (Sidebar)
+lang = st.sidebar.radio("Language / භාෂාව", ["සිංහල", "English"])
+
+usd_rate = 300.0 
+base_path = os.path.dirname(__file__)
+
+# වාහන දත්ත ගබඩාව (ඔයාගේ GitHub එකේ තියෙන පින්තූර වලට අනුව)
+car_db = {
+    "vitz": {
+        "name_en": "Toyota Vitz 2024", "name_si": "ටොයෝටා විට්ස් 2024",
+        "cc_en": "1000cc", "cc_si": "සීසී 1000",
+        "fuel_en": "Petrol/Hybrid", "fuel_si": "පෙට්‍රල්/හයිබ්‍රිඩ්",
+        "hp_en": "68 hp", "hp_si": "අශ්ව බල 68",
+        "price": 18500, "img": "vitz.jpg"
+    },
+    "prado": {
+        "name_en": "Toyota Prado 2025", "name_si": "ටොයෝටා ප්‍රාඩෝ 2025",
+        "cc_en": "2800cc Turbo Diesel", "cc_si": "සීසී 2800 ටර්බෝ ඩීසල්",
+        "fuel_en": "Diesel", "fuel_si": "ඩීසල්",
+        "hp_en": "201 hp", "hp_si": "අශ්ව බල 201",
+        "price": 78000, "img": "prado.jpg"
+    },
+    "axio": {
+        "name_en": "Toyota Axio Hybrid", "name_si": "ටොයෝටා ඇක්සියෝ හයිබ්‍රිඩ්",
+        "cc_en": "1500cc", "cc_si": "සීසී 1500",
+        "fuel_en": "Hybrid", "fuel_si": "හයිබ්‍රිඩ්",
+        "hp_en": "100 hp", "hp_si": "අශ්ව බල 100",
+        "price": 28000, "img": "axio.jpg"
+    }
+}
+
+# භාෂාව අනුව වචන සැකසීම (Syntax Errors මඟහරවා ඇත)
+if lang == "සිංහල":
+    title = "🚗 වාහන තොරතුරු මධ්‍යස්ථානය"
+    label = "වාහනයේ නම ඇතුළත් කරන්න (vitz, prado, axio):"
+    specs_h = "⚙️ තාක්ෂණික විස්තර"
+    price_h = "💰 වෙළඳපොළ මිල තොරතුරු"
+    cc_l, fuel_l, hp_l = "එන්ජින් ධාරිතාව", "ඉන්ධන වර්ගය", "අශ්ව බලය"
+    lkr_text, lakhs_text = "මුළු මිල (රුපියල්)", "ලක්ෂ"
+    install_btn = "මෙම ඇප් එක ඔබගේ දුරකථනයට ස්ථාපනය කිරීමට මෙතැන ක්ලික් කරන්න"
+    phone_msg = "**ස්ථාපනය කිරීමට:** බ්‍රවුසරයේ ⋮ ඔබා 'Add to Home screen' තෝරන්න."
+else:
+    title = "🚗 Vehicle Information Center"
+    label = "Type vehicle name (vitz, prado, axio):"
+    specs_h = "⚙️ Technical Specifications"
+    price_h = "💰 Market Price Info"
+    cc_l, fuel_l, hp_l = "Engine Capacity", "Fuel Type", "Horsepower"
+    lkr_text, lakhs_text = "Total Price (LKR)", "Lakhs"
+    install_btn = "Click here to install this app on your phone"
+    phone_msg = "**To Install:** Tap ⋮ in your browser and select 'Add to Home screen'."
+
+st.title(title)
+
+# ස්ථාපනය කරන Button එක
 if st.button(install_btn):
-    st.info(install_msg)
+    st.info(phone_msg)
+
+query = st.text_input(label).lower().strip()
+
+if query:
+    st.markdown("---")
+    if query in car_db:
+        car = car_db[query]
+        
+        # 1. පින්තූරය පෙන්වීම
+        img_path = os.path.join(base_path, car["img"])
+        if os.path.exists(img_path):
+            st.image(img_path, use_column_width=True)
+
+        # 2. මිල පෙන්වීම
+        lkr_val = car["price"] * usd_rate
+        lakhs = lkr_val / 100000
+        st.subheader(price_h)
+        st.markdown(f"""
+        <div style="background-color:#111; padding:25px; border-radius:15px; border: 2px solid #ff4b4b; text-align:center;">
+            <h1 style="color:white; margin:0;">{lkr_text}: {lkr_val:,.0f}</h1>
+            <h2 style="color:#ff4b4b; margin:0;">({lakhs:,.1f} {lakhs_text})</h2>
