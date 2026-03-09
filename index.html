@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>මගේ දත්ත ගබඩාව</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; }
+        .input-group { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .search-section { background: #e9ecef; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .search-box-container { display: flex; gap: 5px; }
+        #searchBox { flex: 1; }
+        .search-btn { width: auto; background: #007bff; padding: 10px 20px; }
+        .card { background: white; border-left: 5px solid #007bff; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        img { max-width: 100%; height: auto; border-radius: 5px; margin-top: 10px; border: 1px solid #eee; }
+        .edit-btn { background: #ffc107; color: black; margin-top: 10px; width: auto; padding: 5px 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="input-group">
+        <h3 id="formTitle">තොරතුරු ඇතුළත් කරන්න</h3>
+        <input type="text" id="name" placeholder="නම">
+        <input type="text" id="vNo" placeholder="වාහන අංකය">
+        <textarea id="details" rows="3" placeholder="විස්තර"></textarea>
+        <input type="file" id="photo" accept="image/*">
+        <button id="saveBtn" onclick="saveData()">සේව් කරන්න</button>
+    </div>
+
+    <div class="search-section">
+        <h3>සර්ච් කරන්න</h3>
+        <div class="search-box-container">
+            <input type="text" id="searchBox" placeholder="නම හෝ අංකය ගසන්න...">
+            <button class="search-btn" onclick="searchData()">සර්ච්</button>
+        </div>
+        <div id="displayArea"></div>
+    </div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('myDB') || "[]");
+        let editIndex = -1; // දැනට එඩිට් කරමින් ඉන්න දත්තයේ අංකය
+
+        function saveData() {
+            let nameField = document.getElementById('name');
+            let vNoField = document.getElementById('vNo');
+            let detailsField = document.getElementById('details');
+            let fileInput = document.getElementById('photo');
+
+            if (!nameField.value) {
+                alert("කරුණාකර නම ඇතුළත් කරන්න!");
+                return;
+            }
+
+            const processData = (imageData) => {
+                let newData = {
+                    name: nameField.value,
+                    vNo: vNoField.value,
+                    details: detailsField.value,
+                    photo: imageData || (editIndex > -1 ? db[editIndex].photo : null) 
+                };
+
+                if (editIndex > -1) {
+                    db[editIndex] = newData; // පරණ එක update කරනවා
+                    editIndex = -1;
+                    document.getElementById('saveBtn').innerText = "සේව් කරන්න";
+                    document.getElementById('formTitle').innerText = "තොරතුරු ඇතුළත් කරන්න";
+                } else {
+                    db.push(newData); // අලුත් එකක් දානවා
+                }
+
+                localStorage.setItem('myDB', JSON.stringify(db));
+                alert("සාර්ථකව සේව් කළා!");
+                
+                nameField.value = "";
+                vNoField.value = "";
+                detailsField.value = "";
+                fileInput.value = "";
+                renderAll([]);
+            };
+
+            if (fileInput.files.length > 0) {
+                let reader = new FileReader();
+                reader.onload = (e) => processData(e.target.result);
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                processData(null); // ෆොටෝ එකක් නැතුව සේව් කරනවා
+            }
+        }
+
+        function searchData() {
+            let query = document.getElementById('searchBox').value.toLowerCase();
+            if (!query) {
+                alert("කරුණාකර නමක් හෝ අංකයක් ටයිප් කරන්න!");
+                return;
+            }
+            let filtered = db.map((item, index) => ({...item, originalIndex: index}))
+                             .filter(i => i.name.toLowerCase().includes(query) || i.vNo.toLowerCase().includes(query));
+            renderAll(filtered);
+        }
+
+        function editItem(index) {
+            editIndex = index;
+            let item = db[index];
+            
+            document.getElementById('name').value = item.name;
+            document.getElementById('vNo').value = item.vNo;
+            document.getElementById('details').value = item.details;
+            
+            document.getElementById('saveBtn').innerText = "Update කරන්න";
+            document.getElementById('formTitle').innerText = "තොරතුරු සංස්කරණය (Edit)";
+            window.scrollTo(0, 0); // පේජ් එකේ උඩටම යනවා ලේසි වෙන්න
+        }
+
+        function renderAll(data) {
+            let area = document.getElementById('displayArea');
+            area.innerHTML = "";
+            if (data.length === 0 && document.getElementById('searchBox').value !== "") {
+                area.innerHTML = "<p style='color:red;'>කිසිවක් හමු නොවීය!</p>";
+            }
+            data.forEach(i => {
+                let imgHtml = i.photo ? `<img src="${i.photo}">` : `<p style="color:#888; font-size:12px;">(No Photo)</p>`;
+                area.innerHTML += `
+                    <div class="card">
+                        <h3>${i.name}</h3>
+                        <p><b>වාහන අංකය:</b> ${i.vNo}</p>
+                        <p><b>විස්තර:</b> ${i.details}</p>
+                        ${imgHtml}
+                        <br>
+                        <button class="edit-btn" onclick="editItem(${i.originalIndex})">Edit කරන්න</button>
+                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
